@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="FinancialServices" constructor="FinancialAdvisorAssistant" version="0.0.2" display-name-key="FinancialAdvisorAssistant" description-key="FinancialAdvisorAssistant description" control-type="virtual" >
+    <!-- PCF Properties for financial data -->
+    <property name="clientId" display-name-key="Client_ID" description-key="Unique client identifier" of-type="SingleLine.Text" usage="bound" required="true" />
+    <property name="marketData" display-name-key="Market_Data" description-key="Current market conditions and economic indicators" of-type="Multiple" usage="bound" required="false" />
+    <property name="portfolioComposition" display-name-key="Portfolio_Composition" description-key="Client portfolio holdings and allocations" of-type="Multiple" usage="bound" required="false" />
+    <property name="riskAdjustment" display-name-key="Risk_Adjustment" description-key="AI-generated risk assessment and portfolio recommendations" of-type="Multiple" usage="bound" required="false" />
+    
+    <resources>
+      <code path="index.ts" order="1"/>
+      <platform-library name="React" version="16.14.0" />
+      <platform-library name="Fluent" version="9.46.2" />
+    </resources>
+  </control>
+</manifest>
