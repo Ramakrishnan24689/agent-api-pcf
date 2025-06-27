@@ -1,4 +1,4 @@
-# PCF Agent API Reference Implementation
+# PowerApps + Copilot Studio: Smart Forms with Agent APIs
 
 Reference implementation demonstrating how to integrate **Microsoft Copilot Studio** with **PowerApps** using the new **Agent APIs** in **PCF controls**.
 
