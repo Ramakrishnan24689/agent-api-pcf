@@ -54,4 +54,7 @@ pac pcf push --publisher-prefix yourprefix
 - Bind output properties to fields that should receive AI recommendations
 
 ---
-*Reference implementation showcasing Agent APIs in PCF for next-generation PowerApps with Copilot Studio integration.*
+
+## Disclaimer
+
+**This repository is a reference implementation only.** The sole purpose of this project is to demonstrate how to use Agent APIs in Model-Driven Apps forms via PCF controls. This code is provided as-is for educational and demonstration purposes and should not be used in production environments without proper testing, security review, and customization for your specific requirements.
