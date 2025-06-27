@@ -9,6 +9,12 @@ Two working examples of PCF controls that call Copilot Studio agents using `cont
 - 🏥 **Patient Care Assistant** - Healthcare recommendations  
 - 💰 **Financial Advisor Assistant** - Investment risk analysis
 
+### Patient Care Assistant Demo
+![Patient Care PCF](./media/patient-insights-pcf.png)
+
+### Financial Advisor Assistant Demo
+![Financial Advisor PCF](./media/financial-risk-advisor-pcf.png)
+
 ## Core Implementation
 
 ```typescript
@@ -32,6 +38,8 @@ Create topics with event triggers matching the PCF calls:
 - `financial.dynamic_risk_optimization.pcf`
 - `healthcare.patient_care_optimization.pcf`
 
+![Copilot Studio Setup](./media/agent-config-event-example.png)
+
 **Note:** Ensure you have sufficient AI Builder Credits for the custom prompts to work in the Agent.
 
 ### 2. Deploy PCF Controls
@@ -44,10 +52,6 @@ pac pcf push --publisher-prefix yourprefix
 - Add the PCF controls to your forms
 - Bind input properties to Dataverse fields
 - Bind output properties to fields that should receive AI recommendations
-
-## Resources
-- [Agent APIs Documentation](https://learn.microsoft.com/power-apps/developer/component-framework/bring-intelligence-using-agent-apis)
-- [Microsoft Build Session](https://build.microsoft.com/sessions/6186bfd0-a130-4f72-aea9-162f0c0a71b9)
 
 ---
 *Reference implementation showcasing Agent APIs in PCF for next-generation PowerApps with Copilot Studio integration.*
