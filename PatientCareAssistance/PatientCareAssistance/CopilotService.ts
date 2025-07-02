@@ -10,18 +10,10 @@ export async function getPatientCareRecommendation(
   try {
     // Note: In this example, record is passed along with unique event name to the Copilot agent. 
     // The agent can use this information to provide a recommendation, but in this example, it is NOT used in the agent.
-    const eventData: { id?: string; symptoms?: string } = {};
-    if (patientId?.trim()) {
-      eventData.id = patientId;
-    }
-    if (symptoms?.trim()) {
-      eventData.symptoms = symptoms;
-    }
-
     const result = await Promise.race([
       context.copilot.executeEvent(
         CONFIG.COPILOT_EVENT_NAME,
-        eventData
+        { id: patientId ?? "", symptoms: symptoms ?? "" }
       ),
       new Promise((_resolve, reject) => 
         setTimeout(() => reject(new Error(VALIDATION_MESSAGES.TIMEOUT_ERROR)), CONFIG.LOADING_TIMEOUT_MS)
