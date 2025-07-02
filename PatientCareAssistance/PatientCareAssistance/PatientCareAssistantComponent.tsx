@@ -1,63 +1,21 @@
 import * as React from 'react';
-import { Button, Label, Card, CardHeader, CardFooter, FluentProvider, webLightTheme } from '@fluentui/react-components';
-import { CalendarMonthRegular, HistoryRegular, LineHorizontal4Regular, InfoSparkleFilled } from '@fluentui/react-icons';
+import { Card, CardFooter } from '@fluentui/react-components';
+import { InfoSparkleFilled } from '@fluentui/react-icons';
 import { getPatientCareRecommendation } from "./CopilotService";
 import { IInputs } from './generated/ManifestTypes';
+import { PatientInsights } from './components/PatientInsights';
+import { CopilotShimmer as LoadingShimmer } from './components/LoadingComponents';
+import { usePatientRecommendation } from './hooks/usePatientRecommendation';
+import { UI_STRINGS } from './config';
 
 export interface IPatientCareAssistantProps {
-  patientId: string;
-  symptoms: string;
+  patientId?: string;
+  symptoms?: string;
   treatmentPlan: string;
   getPatientCareRecommendation: typeof getPatientCareRecommendation;
   context: ComponentFramework.Context<IInputs>,
   setTreatmentPlan: (plan: string) => void;
 }
-
-const CopilotFlair: React.FC = () => (
-  <span className="copilot-flair">
-    <span className="sparkle sparkle1" />
-    <span className="sparkle sparkle2" />
-    <span className="sparkle sparkle3" />
-    <span style={{ marginLeft: 8, fontWeight: 500, color: '#7f56d9' }}>Copilot is thinking...</span>
-    <style>{`
-      .copilot-flair {
-        display: inline-flex;
-        align-items: center;
-        position: relative;
-      }
-      .sparkle {
-        width: 8px;
-        height: 8px;
-        background: linear-gradient(135deg, #7f56d9 0%, #00cfff 100%);
-        border-radius: 50%;
-        margin-right: 2px;
-        animation: sparkle 1.2s infinite alternate;
-        opacity: 0.85;
-        box-shadow: 0 0 6px #7f56d9aa;
-      }
-      .sparkle1 { animation-delay: 0s; }
-      .sparkle2 { animation-delay: 0.4s; }
-      .sparkle3 { animation-delay: 0.8s; }
-      @keyframes sparkle {
-        0% { transform: scale(1); opacity: 0.85; }
-        50% { transform: scale(1.7); opacity: 1; }
-        100% { transform: scale(1); opacity: 0.85; }
-      }
-    `}</style>
-  </span>
-);
-
-const CopilotShimmer: React.FC = () => (
-  <div style={{ minHeight: 60, display: 'flex', alignItems: 'center' }}>
-    <div className="copilot-shimmer" style={{ width: '100%', height: 32, borderRadius: 4, background: 'linear-gradient(90deg, #f3f2f1 25%, #e0e0e0 50%, #f3f2f1 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.2s infinite linear' }} />
-    <style>{`
-      @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-      }
-    `}</style>
-  </div>
-);
 
 export const PatientCareAssistantComponent: React.FC<IPatientCareAssistantProps> = ({
   patientId,
@@ -67,134 +25,14 @@ export const PatientCareAssistantComponent: React.FC<IPatientCareAssistantProps>
   context,
   setTreatmentPlan
 }) => {
-  // Define a type for the Copilot result
-  interface CopilotResult {
-    completionTokens?: number;
-    dataUsed?: string;
-    finishReason?: string;
-    imagesCount?: number;
-    modelName?: string;
-    modelType?: string;
-    promptTokens?: number;
-    structuredOutput?: {
-      patientInsights?: {
-        averageSeverity?: string;
-        lastTreatmentDate?: string;
-        recentSymptoms?: number;
-      };
-      recommendation?: string;
-    };
-    text?: string;
-    thoughtSteps?: string;
-    totalTokens?: number;
-    [key: string]: unknown;
-  }
+  const {
+    recommendation,
+    loadingRecommendation,
+    insights,
+    error
+  } = usePatientRecommendation(context, patientId, symptoms);
 
-  // Define a type for the parsed text data structure
-  interface ParsedTextData {
-    patientInsights?: {
-      recentSymptoms?: number;
-      averageSeverity?: string;
-      lastTreatmentDate?: string;
-    };
-    recommendation?: string;
-    [key: string]: unknown;
-  }
-
-  const [recommendation, setRecommendation] = React.useState<string>("");
-  const [loadingRecommendation, setLoadingRecommendation] = React.useState<boolean>(true);
-  const [insights, setInsights] = React.useState<{
-    recentSymptoms?: number;
-    averageSeverity?: string | number;
-    lastTreatmentDate?: string;
-    [key: string]: unknown;
-  }>({});
   const [applied, setApplied] = React.useState<boolean>(false);
-
-  // Fetch recommendation and insights on mount
-  React.useEffect(() => {
-    let isMounted = true;
-    
-    const fetchRecommendation = async () => {
-      try {
-        setLoadingRecommendation(true);
-        const result = await getPatientCareRecommendation(context, patientId, symptoms);
-        
-        // Try to parse result as CopilotResult if possible
-        let parsed: CopilotResult = {};
-        
-        if (typeof result === 'string') {
-          try {
-            parsed = JSON.parse(result) as CopilotResult;
-          } catch {
-            parsed = { text: result };
-          }
-        } else if (typeof result === 'object' && result !== null) {
-          parsed = result as CopilotResult;
-        }
-        
-        // Extract recommendation from structuredOutput or text fallback
-        let recommendation = "";
-        let patientInsights = {
-          recentSymptoms: undefined as number | undefined,
-          averageSeverity: undefined as string | number | undefined,
-          lastTreatmentDate: undefined as string | undefined,
-        };
-
-        if (parsed.structuredOutput) {
-          // Use structured output (preferred)
-          recommendation = parsed.structuredOutput.recommendation ?? "";
-          if (parsed.structuredOutput.patientInsights) {
-            patientInsights = {
-              recentSymptoms: parsed.structuredOutput.patientInsights.recentSymptoms,
-              averageSeverity: parsed.structuredOutput.patientInsights.averageSeverity,
-              lastTreatmentDate: parsed.structuredOutput.patientInsights.lastTreatmentDate,
-            };
-          }
-        } else if (parsed.text) {
-          try {
-            const textData = JSON.parse(parsed.text) as ParsedTextData;
-            recommendation = textData.recommendation ?? "";
-            if (textData.patientInsights) {
-              patientInsights = {
-                recentSymptoms: textData.patientInsights.recentSymptoms,
-                averageSeverity: textData.patientInsights.averageSeverity,
-                lastTreatmentDate: textData.patientInsights.lastTreatmentDate,
-              };
-            }
-          } catch {
-            // Fallback to text as recommendation
-            recommendation = parsed.text;
-          }
-        }
-        
-        if (isMounted) {
-          setRecommendation(recommendation);
-          setInsights({
-            recentSymptoms: patientInsights.recentSymptoms,
-            averageSeverity: patientInsights.averageSeverity,
-            lastTreatmentDate: patientInsights.lastTreatmentDate,
-            ...parsed
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching recommendation:', error);
-        if (isMounted) {
-          setRecommendation('Failed to load recommendation. Please try again.');
-        }
-      } finally {
-        if (isMounted) {
-          setLoadingRecommendation(false);
-        }
-      }
-    };
-
-    fetchRecommendation().catch(error => {
-      console.error('Unhandled error in fetchRecommendation:', error);
-    });
-
-    return () => { isMounted = false; };
-  }, [context, patientId, symptoms, getPatientCareRecommendation]);
 
   // Apply recommendation to Treatment Plan field
   const handleApplyRecommendation = () => {
@@ -202,8 +40,9 @@ export const PatientCareAssistantComponent: React.FC<IPatientCareAssistantProps>
     setApplied(true);
   };
 
+  // Reset applied state when recommendation changes
   React.useEffect(() => {
-    setApplied(false); // Reset applied state when recommendation changes
+    setApplied(false);
   }, [recommendation]);
 
   return (
@@ -344,6 +183,7 @@ export const PatientCareAssistantComponent: React.FC<IPatientCareAssistantProps>
           transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
           outline: none;
           margin-top: 12px;
+          margin-right: 8px;
           min-width: 180px;
           min-height: 40px;
         }
@@ -358,46 +198,58 @@ export const PatientCareAssistantComponent: React.FC<IPatientCareAssistantProps>
           background: #f8fafd;
           border-color: #00cfff;
         }
+        .error-message {
+          color: #d13438;
+          font-size: 0.9em;
+          margin-bottom: 12px;
+          padding: 8px;
+          background: #fef2f2;
+          border-radius: 4px;
+          border-left: 4px solid #d13438;
+        }
       `}</style>
       <div className="insights-header">Patient Insights</div>
-      <div className="insights-section" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 16, alignItems: 'stretch', background: '#fff', borderRadius: '0 0 0 0', borderBottom: '1px solid #e0e0e0', padding: '20px 16px 12px 16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
-          <HistoryRegular style={{ fontSize: 28, color: '#7f56d9', marginBottom: 4 }} />
-          <div style={{ fontSize: 13, color: '#888', marginBottom: 2 }}>Recent Symptoms</div>
-          <div style={{ fontWeight: 600, fontSize: 18, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{insights.recentSymptoms ?? '--'}</div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
-          <LineHorizontal4Regular style={{ fontSize: 28, color: '#00cfff', marginBottom: 4 }} />
-          <div style={{ fontSize: 13, color: '#888', marginBottom: 2 }}>Avg. Severity</div>
-          <div style={{ fontWeight: 600, fontSize: 18, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{insights.averageSeverity ?? '--'}</div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
-          <CalendarMonthRegular style={{ fontSize: 28, color: '#ffb300', marginBottom: 4 }} />
-          <div style={{ fontSize: 13, color: '#888', marginBottom: 2 }}>Last Treatment</div>
-          <div style={{ fontWeight: 600, fontSize: 18, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{insights.lastTreatmentDate ?? '--'}</div>        </div>
-      </div>
+      <PatientInsights insights={insights} loading={loadingRecommendation} />
+      
       <div className="insights-header" style={{ marginTop: 8 }}>
         <InfoSparkleFilled style={{ fontSize: 16, marginRight: 8, verticalAlign: 'middle' }} />
         Recommendations
       </div>
+      
       <div className="recommendations-section">
-        {loadingRecommendation ? <CopilotShimmer /> : (
-          recommendation
-            ? <div>{recommendation}</div>
-            : <span style={{ color: '#888' }}>No recommendation yet.</span>
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
         )}
+        
+        {loadingRecommendation ? (
+          <LoadingShimmer />
+        ) : (
+          recommendation ? (
+            <div>{recommendation}</div>
+          ) : (
+            <span style={{ color: '#888' }}>{UI_STRINGS.NO_RECOMMENDATION_MESSAGE}</span>
+          )
+        )}
+        
         <CardFooter>
           <button
             onClick={handleApplyRecommendation}
             disabled={loadingRecommendation || !recommendation || applied}
             className="copilot-apply-btn"
             type="button"
+            aria-label={applied ? "Recommendation has been applied" : "Apply AI recommendation to treatment plan"}
+            aria-describedby="recommendation-text"
           >
             <span style={{ fontSize: 20, marginRight: 8, verticalAlign: 'middle', color: '#7f56d9', display: 'inline-flex', alignItems: 'center' }}>✨</span>
-            <span style={{ fontWeight: 600 }}>{applied ? 'Recommendation Applied' : 'Apply Recommendation'}</span>
+            <span style={{ fontWeight: 600 }}>
+              {applied ? UI_STRINGS.APPLIED_BUTTON_TEXT : UI_STRINGS.APPLY_BUTTON_TEXT}
+            </span>
           </button>
         </CardFooter>
-        <div className="ai-disclaimer">AI-generated content may be incorrect.</div>
+        
+        <div className="ai-disclaimer">{UI_STRINGS.AI_DISCLAIMER}</div>
       </div>
     </Card>
   );

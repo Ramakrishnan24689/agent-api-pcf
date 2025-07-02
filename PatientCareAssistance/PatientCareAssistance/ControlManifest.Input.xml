@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="Healthcare" constructor="PatientCareAssistance" version="0.0.11" display-name-key="PatientCareAssistant" description-key="PatientCareAssistant description" control-type="virtual" >
+  <control namespace="Healthcare" constructor="PatientCareAssistance" version="0.0.18" display-name-key="PatientCareAssistant" description-key="PatientCareAssistant description" control-type="virtual" >
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="patientId" display-name-key="PatientId_Display_Key" description-key="PatientId_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
     <property name="symptoms" display-name-key="Symptoms_Display_Key" description-key="Symptoms_Desc_Key" of-type="Multiple" usage="bound" required="false" />
