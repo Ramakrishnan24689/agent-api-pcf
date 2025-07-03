@@ -1,6 +1,5 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { FinancialAdvisorAssistantComponent, IFinancialAdvisorAssistantProps } from "./FinancialAdvisorAssistantComponent";
-import { getFinancialRiskAssessment } from "./FinancialCopilotService";
 import * as React from "react";
 
 export class FinancialAdvisorAssistant implements ComponentFramework.ReactControl<IInputs, IOutputs> {
@@ -40,7 +39,6 @@ export class FinancialAdvisorAssistant implements ComponentFramework.ReactContro
             marketData: context.parameters.marketData?.raw ?? "",
             portfolioComposition: context.parameters.portfolioComposition?.raw ?? "",
             riskAdjustment: context.parameters.riskAdjustment?.raw ?? "",
-            getFinancialRiskAssessment: getFinancialRiskAssessment,
             context: context,
             setRiskAdjustment: this.setRiskAdjustment.bind(this)
         };
