@@ -9,7 +9,7 @@ export async function getPatientCareRecommendation(
 ): Promise<ServiceResponse<CopilotMessage[]>> {
   try {
     // Note: In this example, record is passed along with unique event name to the Copilot agent. 
-    // The agent can use this information to provide a recommendation, but in this example, it is NOT used in the agent.
+    // The agent can use this information to provide a recommendation.
     const result = await Promise.race([
       context.copilot.executeEvent(
         CONFIG.COPILOT_EVENT_NAME,

@@ -57,9 +57,9 @@ export interface CopilotFinancialResponse {
  */
 export async function getFinancialRiskAssessment(
   context: ComponentFramework.Context<IInputs>,
-  clientId: string,
-  marketData: string,
-  portfolioComposition: string
+  clientId?: string,
+  marketData?: string,
+  portfolioComposition?: string
 ): Promise<CopilotFinancialResponse> {
   try {
     // IMPORTANT: This is the key Agent API call pattern
@@ -70,9 +70,9 @@ export async function getFinancialRiskAssessment(
     const result = await context.copilot.executeEvent(
       "financial.dynamic_risk_optimization.pcf",
       { 
-        clientId, 
-        marketData, 
-        portfolioComposition 
+        clientId: clientId ?? "", 
+        marketData: marketData ?? "", 
+        portfolioComposition: portfolioComposition ?? ""
       }
     );
     console.log("Financial Copilot response:", result);
