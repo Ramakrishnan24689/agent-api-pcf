@@ -4,6 +4,10 @@ Reference implementation demonstrating how to integrate **Microsoft Copilot Stud
 
 ## What This Shows
 
+🎥 **Watch the Live Demo**  
+[![Watch the demo](https://img.youtube.com/vi/TK1lhiwUxNM/0.jpg)](https://www.youtube.com/watch?v=TK1lhiwUxNM)
+
+
 Two working examples of PCF controls that call Copilot Studio agents using `context.copilot.executeEvent`:
 
 - 🏥 **Patient Care Assistant** - Healthcare recommendations  
