@@ -8,6 +8,10 @@ Reference implementation demonstrating how to integrate **Microsoft Copilot Stud
 
 [![Watch the demo](./media/patient-insights-pcf-play.png)](https://www.youtube.com/watch?v=TK1lhiwUxNM)
 
+### Architectural Flow
+
+![Architectural Flow](./media/agentapi-flow-diagram.png)
+
 
 Two working examples of PCF controls that call Copilot Studio agents using `context.copilot.executeEvent`:
 
